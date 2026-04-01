@@ -16,12 +16,10 @@
             --text: #e8e8f0;
             --text-dim: #8888a0;
             --text-muted: #555570;
-            --openai: #10b981;
-            --openai-dim: rgba(16, 185, 129, 0.15);
+            --openai: #c8c8d4;
+            --openai-dim: rgba(200, 200, 212, 0.12);
             --anthropic: #f97316;
             --anthropic-dim: rgba(249, 115, 22, 0.15);
-            --red: #ef4444;
-            --green: #22c55e;
             --gap: 20px;
             --radius: 16px;
         }
@@ -65,10 +63,7 @@
             font-weight: 900;
             line-height: 1.1;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--openai), #fff 40%, #fff 60%, var(--anthropic));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #ffffff;
         }
         .header p {
             color: var(--text-dim);
@@ -80,8 +75,8 @@
         /* KPI Row */
         .kpi-row {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--gap);
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
             margin-bottom: 32px;
         }
         .kpi-card {
@@ -111,8 +106,6 @@
         }
         .kpi-value.openai { color: var(--openai); }
         .kpi-value.anthropic { color: var(--anthropic); }
-        .kpi-value.red { color: var(--red); }
-        .kpi-value.green { color: var(--green); }
         .kpi-sub {
             font-size: 12px;
             color: var(--text-dim);
@@ -180,8 +173,8 @@
 
         /* Annotation */
         .annotation {
-            background: rgba(249, 115, 22, 0.08);
-            border-left: 3px solid var(--anthropic);
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 3px solid var(--text-muted);
             border-radius: 0 8px 8px 0;
             padding: 12px 16px;
             margin-top: 16px;
@@ -191,13 +184,33 @@
         }
         .annotation strong { color: var(--text); }
 
+        /* KPI card group labels */
+        .kpi-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .kpi-group-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding-left: 4px;
+        }
+        .kpi-group-label.openai { color: var(--openai); }
+        .kpi-group-label.anthropic { color: var(--anthropic); }
+        .kpi-group-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap);
+        }
+        .kpi-card.openai-card { border-top: 2px solid var(--openai); }
+        .kpi-card.anthropic-card { border-top: 2px solid var(--anthropic); }
+
         @media (max-width: 900px) {
-            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .kpi-row { grid-template-columns: 1fr; }
             .two-col { grid-template-columns: 1fr; }
             .header h1 { font-size: 28px; }
-        }
-        @media (max-width: 500px) {
-            .kpi-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -206,39 +219,49 @@
 
     <!-- Header -->
     <div class="header">
-        <div class="tag">Ramp Spend Data · Mar 2024 — Feb 2026</div>
+        <div class="tag">Based on Ramp corporate card data · Mar 2024 — Feb 2026</div>
         <h1>The Great AI Switching</h1>
         <p>How enterprise AI spending shifted from OpenAI dominance to an Anthropic surge — tracked through real corporate card data.</p>
     </div>
 
     <!-- KPI Cards -->
     <div class="kpi-row">
-        <div class="kpi-card">
-            <div class="kpi-label">OpenAI New Adoption</div>
-            <div class="kpi-value red">82% → 32%</div>
-            <div class="kpi-sub">-50pp in 24 months</div>
+        <div class="kpi-group">
+            <div class="kpi-group-label openai">OpenAI</div>
+            <div class="kpi-group-cards">
+                <div class="kpi-card openai-card">
+                    <div class="kpi-label">New buyers choosing OpenAI</div>
+                    <div class="kpi-value openai">82% → 32%</div>
+                    <div class="kpi-sub">Out of every 100 companies buying AI for the first time</div>
+                </div>
+                <div class="kpi-card openai-card">
+                    <div class="kpi-label">Came from a rival</div>
+                    <div class="kpi-value openai">2% → 20%</div>
+                    <div class="kpi-sub">% of OpenAI customers who were using another AI provider first</div>
+                </div>
+            </div>
         </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Anthropic New Adoption</div>
-            <div class="kpi-value green">13% → 65%</div>
-            <div class="kpi-sub">+52pp in 24 months</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">OpenAI Competition %</div>
-            <div class="kpi-value red">2% → 20%</div>
-            <div class="kpi-sub">10x more competitive pressure</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Anthropic Competition %</div>
-            <div class="kpi-value green">78% → 34%</div>
-            <div class="kpi-sub">Less threatened over time</div>
+        <div class="kpi-group">
+            <div class="kpi-group-label anthropic">Anthropic</div>
+            <div class="kpi-group-cards">
+                <div class="kpi-card anthropic-card">
+                    <div class="kpi-label">New buyers choosing Anthropic</div>
+                    <div class="kpi-value anthropic">13% → 65%</div>
+                    <div class="kpi-sub">Out of every 100 companies buying AI for the first time</div>
+                </div>
+                <div class="kpi-card anthropic-card">
+                    <div class="kpi-label">Came from a rival</div>
+                    <div class="kpi-value anthropic">78% → 34%</div>
+                    <div class="kpi-sub">% of Anthropic customers who were using another AI provider first</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Chart 1: The Crossover -->
     <div class="chart-section">
-        <h2>The Crossover: New Adoption Share</h2>
-        <div class="subtitle">Percentage of new AI adopters choosing each provider — the lines crossed in late 2025</div>
+        <h2>Where are new buyers going?</h2>
+        <div class="subtitle">When a company buys AI for the first time, who do they pick?</div>
         <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background: var(--openai)"></div> OpenAI</div>
             <div class="legend-item"><div class="legend-dot" style="background: var(--anthropic)"></div> Anthropic</div>
@@ -247,7 +270,7 @@
             <canvas id="crossoverChart"></canvas>
         </div>
         <div class="annotation">
-            <strong>Key inflection:</strong> Sep 2025 — OpenAI dropped from 77% to 68% in one month, then plummeted to 32% by Feb 2026. Anthropic surged from 21% to 65% over the same period.
+            <strong>Turning point:</strong> In Sep 2025, OpenAI's share of new buyers dropped from 77% to 68% in a single month — then fell to 32% by Feb 2026. Anthropic went from 21% to 65% over the same period.
         </div>
     </div>
 
@@ -255,8 +278,8 @@
     <div class="two-col">
         <!-- Speed of Switching -->
         <div class="chart-section">
-            <h2>Speed of Switching</h2>
-            <div class="subtitle">Month-over-month change in new adoption share</div>
+            <h2>How fast is the switch happening?</h2>
+            <div class="subtitle">Monthly change in each provider's share of new buyers</div>
             <div class="chart-wrap" style="height: 300px;">
                 <canvas id="velocityChart"></canvas>
             </div>
@@ -264,8 +287,8 @@
 
         <!-- Competition Pressure -->
         <div class="chart-section">
-            <h2>Competitive Pressure</h2>
-            <div class="subtitle">% of each provider's customers also using the other</div>
+            <h2>Who's winning the switchers?</h2>
+            <div class="subtitle">% of each provider's customers who came from a competitor</div>
             <div class="chart-wrap" style="height: 300px;">
                 <canvas id="competitionChart"></canvas>
             </div>
@@ -274,8 +297,8 @@
 
     <!-- Chart 4: Segment Breakdown -->
     <div class="chart-section">
-        <h2>Anthropic Gains Across Every Segment</h2>
-        <div class="subtitle">Enterprise, Mid-Market, and SMB adoption — Anthropic is rising everywhere, with SMB moving fastest</div>
+        <h2>Is this just a small-company thing?</h2>
+        <div class="subtitle">Anthropic's share of new buyers by company size — enterprise, mid-market, and SMB</div>
         <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background: #f97316"></div> Enterprise</div>
             <div class="legend-item"><div class="legend-dot" style="background: #fb923c"></div> Mid-Market</div>
@@ -285,7 +308,7 @@
             <canvas id="segmentChart"></canvas>
         </div>
         <div class="annotation">
-            <strong>SMB leads the switch:</strong> Anthropic's SMB share went from 9% to 55% — a 6x increase. Enterprise moved from 16% to 53%. Smaller companies adopt faster, but enterprises are following the same trajectory.
+            <strong>Not just startups:</strong> Anthropic's share of new enterprise buyers went from 16% to 53%. SMB moved even faster — 9% to 55%. The switch is happening at every company size.
         </div>
     </div>
 
@@ -330,7 +353,7 @@ Chart.defaults.color = '#8888a0';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
 Chart.defaults.font.family = "'Inter', sans-serif";
 
-const OPENAI_COLOR = '#10b981';
+const OPENAI_COLOR = '#c8c8d4';
 const ANTHROPIC_COLOR = '#f97316';
 
 // ── Chart 1: The Crossover ──
@@ -343,7 +366,7 @@ new Chart(document.getElementById('crossoverChart'), {
                 label: 'OpenAI',
                 data: DATA.map(d => d.oAdopt),
                 borderColor: OPENAI_COLOR,
-                backgroundColor: 'rgba(16,185,129,0.08)',
+                backgroundColor: 'rgba(200,200,212,0.06)',
                 borderWidth: 3,
                 fill: true,
                 tension: 0.35,
@@ -407,7 +430,7 @@ new Chart(document.getElementById('velocityChart'), {
             {
                 label: 'OpenAI MoM Change',
                 data: oVelocity,
-                backgroundColor: oVelocity.map(v => v >= 0 ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.6)'),
+                backgroundColor: oVelocity.map(v => v >= 0 ? 'rgba(200,200,212,0.6)' : 'rgba(200,200,212,0.3)'),
                 borderRadius: 4,
                 barPercentage: 0.5,
             },
@@ -458,7 +481,7 @@ new Chart(document.getElementById('competitionChart'), {
         labels,
         datasets: [
             {
-                label: 'OpenAI facing competition',
+                label: 'OpenAI — switched from rival',
                 data: DATA.map(d => d.oComp),
                 borderColor: OPENAI_COLOR,
                 borderWidth: 2.5,
@@ -469,7 +492,7 @@ new Chart(document.getElementById('competitionChart'), {
                 fill: false,
             },
             {
-                label: 'Anthropic facing competition',
+                label: 'Anthropic — switched from rival',
                 data: DATA.map(d => d.aComp),
                 borderColor: ANTHROPIC_COLOR,
                 borderWidth: 2.5,
@@ -575,4 +598,3 @@ new Chart(document.getElementById('segmentChart'), {
 </script>
 </body>
 </html>
-
