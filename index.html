@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great AI Switching — OpenAI vs Anthropic (Ramp Data)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #13131f;
+            --bg-card-hover: #1a1a2e;
+            --border: #1e1e35;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --text-muted: #555570;
+            --openai: #10b981;
+            --openai-dim: rgba(16, 185, 129, 0.15);
+            --anthropic: #f97316;
+            --anthropic-dim: rgba(249, 115, 22, 0.15);
+            --red: #ef4444;
+            --green: #22c55e;
+            --gap: 20px;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header .tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--anthropic-dim), var(--openai-dim));
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+        .header h1 {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--openai), #fff 40%, #fff 60%, var(--anthropic));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            color: var(--text-dim);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* KPI Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--gap);
+            margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: #333;
+        }
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+        .kpi-value.openai { color: var(--openai); }
+        .kpi-value.anthropic { color: var(--anthropic); }
+        .kpi-value.red { color: var(--red); }
+        .kpi-value.green { color: var(--green); }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        /* Chart sections */
+        .chart-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: var(--gap);
+        }
+        .chart-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .chart-section .subtitle {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+        .chart-wrap {
+            position: relative;
+            height: 360px;
+        }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap);
+            margin-bottom: var(--gap);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Annotation */
+        .annotation {
+            background: rgba(249, 115, 22, 0.08);
+            border-left: 3px solid var(--anthropic);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        .annotation strong { color: var(--text); }
+
+        @media (max-width: 900px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+            .header h1 { font-size: 28px; }
+        }
+        @media (max-width: 500px) {
+            .kpi-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="tag">Ramp Spend Data · Mar 2024 — Feb 2026</div>
+        <h1>The Great AI Switching</h1>
+        <p>How enterprise AI spending shifted from OpenAI dominance to an Anthropic surge — tracked through real corporate card data.</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">OpenAI New Adoption</div>
+            <div class="kpi-value red">82% → 32%</div>
+            <div class="kpi-sub">-50pp in 24 months</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Anthropic New Adoption</div>
+            <div class="kpi-value green">13% → 65%</div>
+            <div class="kpi-sub">+52pp in 24 months</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">OpenAI Competition %</div>
+            <div class="kpi-value red">2% → 20%</div>
+            <div class="kpi-sub">10x more competitive pressure</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Anthropic Competition %</div>
+            <div class="kpi-value green">78% → 34%</div>
+            <div class="kpi-sub">Less threatened over time</div>
+        </div>
+    </div>
+
+    <!-- Chart 1: The Crossover -->
+    <div class="chart-section">
+        <h2>The Crossover: New Adoption Share</h2>
+        <div class="subtitle">Percentage of new AI adopters choosing each provider — the lines crossed in late 2025</div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background: var(--openai)"></div> OpenAI</div>
+            <div class="legend-item"><div class="legend-dot" style="background: var(--anthropic)"></div> Anthropic</div>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="crossoverChart"></canvas>
+        </div>
+        <div class="annotation">
+            <strong>Key inflection:</strong> Sep 2025 — OpenAI dropped from 77% to 68% in one month, then plummeted to 32% by Feb 2026. Anthropic surged from 21% to 65% over the same period.
+        </div>
+    </div>
+
+    <!-- Chart 2 & 3: Two column -->
+    <div class="two-col">
+        <!-- Speed of Switching -->
+        <div class="chart-section">
+            <h2>Speed of Switching</h2>
+            <div class="subtitle">Month-over-month change in new adoption share</div>
+            <div class="chart-wrap" style="height: 300px;">
+                <canvas id="velocityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Competition Pressure -->
+        <div class="chart-section">
+            <h2>Competitive Pressure</h2>
+            <div class="subtitle">% of each provider's customers also using the other</div>
+            <div class="chart-wrap" style="height: 300px;">
+                <canvas id="competitionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Segment Breakdown -->
+    <div class="chart-section">
+        <h2>Anthropic Gains Across Every Segment</h2>
+        <div class="subtitle">Enterprise, Mid-Market, and SMB adoption — Anthropic is rising everywhere, with SMB moving fastest</div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background: #f97316"></div> Enterprise</div>
+            <div class="legend-item"><div class="legend-dot" style="background: #fb923c"></div> Mid-Market</div>
+            <div class="legend-item"><div class="legend-dot" style="background: #fdba74"></div> SMB</div>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="segmentChart"></canvas>
+        </div>
+        <div class="annotation">
+            <strong>SMB leads the switch:</strong> Anthropic's SMB share went from 9% to 55% — a 6x increase. Enterprise moved from 16% to 53%. Smaller companies adopt faster, but enterprises are following the same trajectory.
+        </div>
+    </div>
+
+    <div class="footer">
+        Source: Ramp corporate card spend data · Dashboard by Jing · Data period: March 2024 — February 2026
+    </div>
+</div>
+
+<script>
+// ── Data ──
+const DATA = [
+    { date: 'Mar 2024', oAdopt: 82, oComp: 2, oEnt: 94, oMid: 97, oSMB: 95, aAdopt: 13, aComp: 78, aEnt: 16, aMid: 7, aSMB: 9 },
+    { date: 'Apr 2024', oAdopt: 90, oComp: 3, oEnt: 93, oMid: 97, oSMB: 95, aAdopt: 9, aComp: 70, aEnt: 18, aMid: 9, aSMB: 10 },
+    { date: 'May 2024', oAdopt: 93, oComp: 5, oEnt: 95, oMid: 97, oSMB: 95, aAdopt: 5, aComp: 63, aEnt: 20, aMid: 10, aSMB: 11 },
+    { date: 'Jun 2024', oAdopt: 88, oComp: 5, oEnt: 95, oMid: 97, oSMB: 94, aAdopt: 9, aComp: 61, aEnt: 19, aMid: 10, aSMB: 12 },
+    { date: 'Jul 2024', oAdopt: 77, oComp: 5, oEnt: 96, oMid: 96, oSMB: 92, aAdopt: 16, aComp: 60, aEnt: 20, aMid: 13, aSMB: 15 },
+    { date: 'Aug 2024', oAdopt: 75, oComp: 4, oEnt: 95, oMid: 95, oSMB: 91, aAdopt: 15, aComp: 55, aEnt: 23, aMid: 15, aSMB: 17 },
+    { date: 'Sep 2024', oAdopt: 78, oComp: 5, oEnt: 94, oMid: 94, oSMB: 89, aAdopt: 11, aComp: 48, aEnt: 22, aMid: 16, aSMB: 18 },
+    { date: 'Oct 2024', oAdopt: 75, oComp: 5, oEnt: 94, oMid: 93, oSMB: 89, aAdopt: 13, aComp: 46, aEnt: 22, aMid: 18, aSMB: 19 },
+    { date: 'Nov 2024', oAdopt: 74, oComp: 5, oEnt: 93, oMid: 93, oSMB: 88, aAdopt: 16, aComp: 45, aEnt: 22, aMid: 19, aSMB: 21 },
+    { date: 'Dec 2024', oAdopt: 79, oComp: 6, oEnt: 94, oMid: 93, oSMB: 87, aAdopt: 13, aComp: 43, aEnt: 24, aMid: 21, aSMB: 21 },
+    { date: 'Jan 2025', oAdopt: 76, oComp: 6, oEnt: 92, oMid: 92, oSMB: 86, aAdopt: 13, aComp: 41, aEnt: 23, aMid: 22, aSMB: 23 },
+    { date: 'Feb 2025', oAdopt: 77, oComp: 10, oEnt: 92, oMid: 93, oSMB: 86, aAdopt: 13, aComp: 37, aEnt: 25, aMid: 23, aSMB: 23 },
+    { date: 'Mar 2025', oAdopt: 80, oComp: 14, oEnt: 90, oMid: 93, oSMB: 87, aAdopt: 10, aComp: 34, aEnt: 26, aMid: 25, aSMB: 23 },
+    { date: 'Apr 2025', oAdopt: 85, oComp: 15, oEnt: 93, oMid: 94, oSMB: 89, aAdopt: 7, aComp: 32, aEnt: 26, aMid: 26, aSMB: 24 },
+    { date: 'May 2025', oAdopt: 80, oComp: 16, oEnt: 93, oMid: 94, oSMB: 90, aAdopt: 8, aComp: 31, aEnt: 27, aMid: 27, aSMB: 25 },
+    { date: 'Jun 2025', oAdopt: 76, oComp: 16, oEnt: 92, oMid: 94, oSMB: 89, aAdopt: 13, aComp: 31, aEnt: 30, aMid: 29, aSMB: 27 },
+    { date: 'Jul 2025', oAdopt: 75, oComp: 17, oEnt: 92, oMid: 93, oSMB: 89, aAdopt: 15, aComp: 31, aEnt: 29, aMid: 31, aSMB: 30 },
+    { date: 'Aug 2025', oAdopt: 77, oComp: 18, oEnt: 92, oMid: 93, oSMB: 89, aAdopt: 15, aComp: 30, aEnt: 29, aMid: 33, aSMB: 31 },
+    { date: 'Sep 2025', oAdopt: 68, oComp: 19, oEnt: 92, oMid: 93, oSMB: 89, aAdopt: 21, aComp: 30, aEnt: 32, aMid: 35, aSMB: 33 },
+    { date: 'Oct 2025', oAdopt: 54, oComp: 20, oEnt: 92, oMid: 92, oSMB: 87, aAdopt: 28, aComp: 30, aEnt: 34, aMid: 39, aSMB: 37 },
+    { date: 'Nov 2025', oAdopt: 55, oComp: 20, oEnt: 91, oMid: 91, oSMB: 86, aAdopt: 32, aComp: 30, aEnt: 35, aMid: 40, aSMB: 40 },
+    { date: 'Dec 2025', oAdopt: 54, oComp: 21, oEnt: 91, oMid: 90, oSMB: 85, aAdopt: 31, aComp: 30, aEnt: 37, aMid: 42, aSMB: 41 },
+    { date: 'Jan 2026', oAdopt: 42, oComp: 20, oEnt: 90, oMid: 89, oSMB: 83, aAdopt: 49, aComp: 31, aEnt: 42, aMid: 46, aSMB: 47 },
+    { date: 'Feb 2026', oAdopt: 32, oComp: 20, oEnt: 88, oMid: 86, oSMB: 79, aAdopt: 65, aComp: 34, aEnt: 53, aMid: 56, aSMB: 55 },
+];
+
+const labels = DATA.map(d => d.date);
+
+// Chart defaults
+Chart.defaults.color = '#8888a0';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+const OPENAI_COLOR = '#10b981';
+const ANTHROPIC_COLOR = '#f97316';
+
+// ── Chart 1: The Crossover ──
+new Chart(document.getElementById('crossoverChart'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [
+            {
+                label: 'OpenAI',
+                data: DATA.map(d => d.oAdopt),
+                borderColor: OPENAI_COLOR,
+                backgroundColor: 'rgba(16,185,129,0.08)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                pointBackgroundColor: OPENAI_COLOR,
+            },
+            {
+                label: 'Anthropic',
+                data: DATA.map(d => d.aAdopt),
+                borderColor: ANTHROPIC_COLOR,
+                backgroundColor: 'rgba(249,115,22,0.08)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                pointBackgroundColor: ANTHROPIC_COLOR,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#1a1a2e',
+                borderColor: '#333',
+                borderWidth: 1,
+                titleColor: '#fff',
+                bodyColor: '#ccc',
+                padding: 14,
+                cornerRadius: 10,
+                callbacks: {
+                    label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%`
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 11 } } },
+            y: {
+                min: 0, max: 100,
+                ticks: { callback: v => v + '%', stepSize: 20 },
+                grid: { color: 'rgba(255,255,255,0.04)' }
+            }
+        }
+    }
+});
+
+// ── Chart 2: Speed of Switching (Velocity) ──
+const oVelocity = DATA.map((d, i) => i === 0 ? 0 : d.oAdopt - DATA[i-1].oAdopt);
+const aVelocity = DATA.map((d, i) => i === 0 ? 0 : d.aAdopt - DATA[i-1].aAdopt);
+
+new Chart(document.getElementById('velocityChart'), {
+    type: 'bar',
+    data: {
+        labels,
+        datasets: [
+            {
+                label: 'OpenAI MoM Change',
+                data: oVelocity,
+                backgroundColor: oVelocity.map(v => v >= 0 ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.6)'),
+                borderRadius: 4,
+                barPercentage: 0.5,
+            },
+            {
+                label: 'Anthropic MoM Change',
+                data: aVelocity,
+                backgroundColor: aVelocity.map(v => v >= 0 ? 'rgba(249,115,22,0.7)' : 'rgba(249,115,22,0.25)'),
+                borderRadius: 4,
+                barPercentage: 0.5,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { usePointStyle: true, padding: 12, font: { size: 11 } }
+            },
+            tooltip: {
+                backgroundColor: '#1a1a2e',
+                borderColor: '#333',
+                borderWidth: 1,
+                callbacks: {
+                    label: ctx => {
+                        const sign = ctx.parsed.y >= 0 ? '+' : '';
+                        return `${ctx.dataset.label}: ${sign}${ctx.parsed.y}pp`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 90, font: { size: 9 } } },
+            y: {
+                ticks: { callback: v => (v >= 0 ? '+' : '') + v + 'pp', font: { size: 10 } },
+                grid: { color: 'rgba(255,255,255,0.04)' }
+            }
+        }
+    }
+});
+
+// ── Chart 3: Competition Pressure ──
+new Chart(document.getElementById('competitionChart'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [
+            {
+                label: 'OpenAI facing competition',
+                data: DATA.map(d => d.oComp),
+                borderColor: OPENAI_COLOR,
+                borderWidth: 2.5,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+                pointBackgroundColor: OPENAI_COLOR,
+                fill: false,
+            },
+            {
+                label: 'Anthropic facing competition',
+                data: DATA.map(d => d.aComp),
+                borderColor: ANTHROPIC_COLOR,
+                borderWidth: 2.5,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+                pointBackgroundColor: ANTHROPIC_COLOR,
+                fill: false,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { usePointStyle: true, padding: 12, font: { size: 11 } }
+            },
+            tooltip: {
+                backgroundColor: '#1a1a2e',
+                borderColor: '#333',
+                borderWidth: 1,
+                callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%` }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 90, font: { size: 9 } } },
+            y: {
+                min: 0,
+                ticks: { callback: v => v + '%', font: { size: 10 } },
+                grid: { color: 'rgba(255,255,255,0.04)' }
+            }
+        }
+    }
+});
+
+// ── Chart 4: Segment Breakdown (Anthropic) ──
+new Chart(document.getElementById('segmentChart'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [
+            {
+                label: 'Anthropic Enterprise',
+                data: DATA.map(d => d.aEnt),
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249,115,22,0.06)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+            },
+            {
+                label: 'Anthropic Mid-Market',
+                data: DATA.map(d => d.aMid),
+                borderColor: '#fb923c',
+                backgroundColor: 'rgba(251,146,60,0.06)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+            },
+            {
+                label: 'Anthropic SMB',
+                data: DATA.map(d => d.aSMB),
+                borderColor: '#fdba74',
+                backgroundColor: 'rgba(253,186,116,0.06)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#1a1a2e',
+                borderColor: '#333',
+                borderWidth: 1,
+                callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%` }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 11 } } },
+            y: {
+                min: 0, max: 60,
+                ticks: { callback: v => v + '%', stepSize: 10 },
+                grid: { color: 'rgba(255,255,255,0.04)' }
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
